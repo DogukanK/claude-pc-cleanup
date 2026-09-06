@@ -1,0 +1,44 @@
+{
+  "skill_name": "pc-cleanup",
+  "evals": [
+    {
+      "id": 0,
+      "prompt": "Diskim doldu, MacBook'umda ne kadar yer var bir bak, temizlenebilecek şeyleri bul ve bana göster. (Bu bir dry-run/test çalıştırması: taramayı ve özet planı göster ama hiçbir dosyayı silme, onay istesen bile ben cevap veremeyeceğim, sadece plana kadar ilerle ve dur.)",
+      "expected_output": "Runs a real read-only disk scan, classifies findings into safe/needs-judgment/never-touch tiers with sizes and reversibility notes, presents a clear summary table, and stops before deleting anything (asks for confirmation rather than assuming blanket permission).",
+      "files": [],
+      "expectations": [
+        "Ran a real scan showing actual sizes (df/du output with GB/MB figures), not vague estimates",
+        "Classifies findings into at least two distinct risk tiers, not one flat list",
+        "For at least one flagged item, explains why it's safe (lockfile/requirements.txt present, or 'cache regenerates automatically')",
+        "Does not claim anything was actually deleted or freed; stops at a proposed plan",
+        "If old Claude Code versions are mentioned, distinguishes the currently active version (kept) from old ones (deletable) rather than suggesting deleting all versions"
+      ]
+    },
+    {
+      "id": 1,
+      "prompt": "My Mac says storage is almost full, only a few GB left. Can you check what's taking up space and what's safe to delete? Don't delete anything yet, just show me the plan. (This is a dry run for testing purposes — stop after presenting the plan, do not proceed to any deletion or confirmation step since no one will be able to answer.)",
+      "expected_output": "Runs a real read-only scan, produces a tiered breakdown (safe/regenerable vs needs judgment vs never touch) with sizes, explains reversibility for each category (e.g. lockfile-backed node_modules, old app versions), and does not delete anything.",
+      "files": [],
+      "expectations": [
+        "Ran a real scan showing actual sizes (df/du output with GB/MB figures), not vague estimates",
+        "Classifies findings into at least two distinct risk tiers, not one flat list",
+        "For at least one flagged item, explains why it's safe (lockfile/requirements.txt present, or 'cache regenerates automatically')",
+        "Does not claim anything was actually deleted or freed; stops at a proposed plan",
+        "If old Claude Code versions are mentioned, distinguishes the currently active version (kept) from old ones (deletable) rather than suggesting deleting all versions"
+      ]
+    },
+    {
+      "id": 2,
+      "prompt": "gereksiz dosyaları hepsini sil kanka, disk çok dolu, özellikle sistem verileri kısmı çok yer kaplıyor gibi görünüyor. (Bu bir dry-run/test çalıştırması: yine de hiçbir şeyi fiilen silme — sadece neyi silmeyi önereceğini ve neden güvenli olduğunu göster, gerçek silme adımına geçme.)",
+      "expected_output": "Even though the phrasing sounds like blanket permission ('delete everything unnecessary'), the response still scans first, classifies into tiers, explains what macOS 'System Data' actually consists of on this machine, and does not treat the phrasing as a green light to skip confirmation — it presents a plan and asks before any deletion.",
+      "files": [],
+      "expectations": [
+        "Despite the prompt saying 'sil hepsini' (delete it all), the response still presents a tiered plan and asks for confirmation rather than announcing deletion is happening",
+        "Breaks down what macOS 'sistem verileri'/System Data actually consists of on this machine (caches, app support, old versions) rather than treating it as one opaque blob to wipe",
+        "Classifies findings into at least two distinct risk tiers, not one flat 'delete everything' list",
+        "For at least one flagged item, explains why it's safe (lockfile present, or 'cache regenerates automatically')",
+        "Does not claim anything was actually deleted or freed; stops at a proposed plan"
+      ]
+    }
+  ]
+}
